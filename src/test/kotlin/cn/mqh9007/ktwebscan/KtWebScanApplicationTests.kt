@@ -6,8 +6,8 @@ import org.springframework.boot.test.context.SpringBootTest
 @SpringBootTest
 class KtWebScanApplicationTests {
 
-	@Test
-	fun contextLoads() {
-	}
+    @Test
+    fun contextLoads() {
+    }
 
 }
