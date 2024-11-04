@@ -5,8 +5,10 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 
+
+//测试接口
 @RestController
-class HelloController {
+class TestController {
     @RequestMapping("/api/test")
     fun hello(): String {
         return "test success!"

@@ -9,7 +9,7 @@ import com.baomidou.mybatisplus.extension.service.IService
  * @createDate 2024-11-02 11:38:05
  */
 interface UsersService : IService<Users?>{
-    fun getUserByUserName(name :String): Users
+    fun getUserByUserName(name :String, password :String): Users
     fun login(user: Users): Users
-    fun insertUser(user : Users)
+    fun register(user : Users)
 }

@@ -21,20 +21,21 @@ class UsersServiceImpl : ServiceImpl<UsersMapper, Users>(), UsersService {
     lateinit var usersMapper: UsersMapper
 
     override fun login(user: Users): Users {
-        return usersMapper.getUserByUserName(user.username!!)
+        return usersMapper.getUserByUserName(user.username!!,user.password!!)
     }
 
 
-    override fun getUserByUserName(name: String):Users {
+    override fun getUserByUserName(name: String, password: String): Users {
         return usersMapper.selectOne(
             QueryWrapper<Users>().eq("username", name)
+
         )
 //        return usersMapper.getUserByUserName(name)
     }
 
 
-    override fun insertUser(user: Users) {
-        baseMapper.insertUser(user)
+    override fun register(user: Users) {
+        baseMapper.register(user)
     }
 
 

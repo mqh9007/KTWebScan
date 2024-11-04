@@ -5,18 +5,15 @@ import cn.mqh9007.ktwebscan.pojo.Users
 import cn.mqh9007.ktwebscan.service.UsersService
 import cn.mqh9007.ktwebscan.util.ResultMsg
 import com.alibaba.fastjson2.JSON
-import com.alibaba.fastjson2.JSONObject
-import com.alibaba.fastjson2.JSONPObject
 import jakarta.annotation.Resource
 import jakarta.servlet.http.HttpServletRequest
-import org.apache.tomcat.util.json.JSONParser
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.web.bind.annotation.*
 import java.time.Duration
 import java.util.UUID
 
 @RestController
-class Login {
+class UserController {
     @Resource
     lateinit var usersService: UsersService
 
@@ -27,23 +24,24 @@ class Login {
     @Resource
     lateinit var redisTemplate: RedisTemplate<String, Any>
 
+    // 处理登录api接口
     @PostMapping("user/login")
-    fun login(@RequestBody user: Users):ResultMsg {
-        val users = usersService.login(user)
-
-        val data = HashMap<String,Any>()
+        fun login(@RequestBody user: Users):ResultMsg {
+            val users = usersService.login(user)    //调用用户service层 登陆验证
+        val data = HashMap<String,Any>()    //创建一个map
+        user.password = DigestUtil.md5Hex(user.password)
         if (users != null) {
-            if (users.username!=user.username) {
-                return ResultMsg(false,500,"用户名或密码不匹配",data)
+            if (user.password == users.password){
+                val token = UUID.randomUUID().toString()
+                val json = JSON.toJSONString(users) //用户信息转换为JSON
+                //将token和用户info存入redis，过期时间为1小时
+                redisTemplate.opsForValue().set(token,json, Duration.ofHours(1))
+                data["token"] = token
+                return ResultMsg(true,200,"登录成功",data)
             }
-            val token = UUID.randomUUID().toString()
-            val json = JSON.toJSONString(users)
-            redisTemplate.opsForValue().set(token,json, Duration.ofHours(1))
-            data["token"] = token
-            return ResultMsg(true,200,data)
+            return ResultMsg(false,500,"用户名或密码错误",data)
         }
-        return ResultMsg(false,500,"用户不存在",data)
-
+        return ResultMsg(false,401,"用户不存在",data)
     }
     @GetMapping("/user/info")
     fun getInfo(request: HttpServletRequest): ResultMsg {
@@ -63,11 +61,11 @@ class Login {
         return ResultMsg(true,200,null)
     }
 
-    @RequestMapping("api/user/register")
+    @RequestMapping("/user/register")
     fun register(@RequestBody user: Users) {
 //        println(UUID.randomUUID().toString().replace("-",""))
 //        user.password= DigestUtil.md5Hex(user.password)
-        usersService.insertUser(user)
+        usersService.register(user)
     }
 
 

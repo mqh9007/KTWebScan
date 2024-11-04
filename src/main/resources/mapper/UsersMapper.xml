@@ -6,15 +6,14 @@
 
     <resultMap id="BaseResultMap" type="cn.mqh9007.ktwebscan.pojo.Users">
             <result property="username" column="username" jdbcType="VARCHAR"/>
-            <result property="passwd" column="passwd" jdbcType="VARCHAR"/>
-            <result property="state" column="state" jdbcType="INTEGER"/>
+            <result property="password" column="password" jdbcType="VARCHAR"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         username,passwd,state
     </sql>
     <select id="getUserByUserName" resultType="cn.mqh9007.ktwebscan.pojo.Users">
-        select username,passwd from users
+        select username,password from users
         where username = #{name}
     </select>
 
@@ -23,8 +22,8 @@
     </select>
 
 
-    <insert id="insertUser">
+    <insert id="register">
         insert into users(username,passwd)
-        values (#{username},#{passwd},1)
+        values (#{username},#{password},1)
     </insert>
 </mapper>

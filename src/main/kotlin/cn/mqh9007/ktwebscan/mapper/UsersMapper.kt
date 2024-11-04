@@ -13,9 +13,9 @@ import org.apache.ibatis.annotations.Param
  */
 @Mapper
 interface UsersMapper : BaseMapper<Users>{
-    fun getUserByUserName(@Param("name") userName: String): Users
+    fun getUserByUserName(@Param("name") userName: String, password: String): Users
     fun login(username: String, password: String): Users?
-    fun insertUser(users: Users)
+    fun register(users: Users)
 }
 
 
