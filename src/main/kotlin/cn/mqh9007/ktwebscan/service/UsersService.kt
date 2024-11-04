@@ -10,7 +10,7 @@ import com.baomidou.mybatisplus.extension.service.IService
  */
 interface UsersService : IService<Users?>{
     fun getUserByUserName(name :String, password :String): Users
-    fun login(user: Users): Users
+    fun login(user: Users): Users?
     fun register(user : Users)
     fun isUsernameExist(username : String): Boolean
 }
