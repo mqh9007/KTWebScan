@@ -43,7 +43,7 @@ class UserController {
     }
 
     //获取用户信息
-    @GetMapping("user/info")
+    @PostMapping("user/info")
     fun getInfo(request: HttpServletRequest): ResultMsg {
         val token = request.getHeader("token")
         val data = redisTemplate.opsForValue().get(token)?:return ResultMsg(false,411,"token过期")
@@ -52,13 +52,15 @@ class UserController {
         val map = HashMap<String, String>()
         val parse = JSON.parseObject(get)
         map["name"] = parse.getString("username")
-//        map["roles"] = "经理"
+//        map["roles"] = ""
         return ResultMsg(true, 200,map)
     }
 
     //退出登录
     @PostMapping("user/logout")
-    fun logout():ResultMsg {
+    fun logout(request: HttpServletRequest):ResultMsg {
+        val token = request.getHeader("token")
+        redisTemplate.delete(token)
         return ResultMsg(true,200,null)
     }
 
