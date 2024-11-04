@@ -16,6 +16,7 @@ interface UsersMapper : BaseMapper<Users>{
     fun getUserByUserName(@Param("name") userName: String, password: String): Users
     fun login(username: String, password: String): Users?
     fun register(users: Users)
+    fun findUserByUsername(username: String): Users?
 }
 
 

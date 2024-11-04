@@ -4,7 +4,6 @@ import cn.mqh9007.ktwebscan.mapper.UsersMapper
 import cn.mqh9007.ktwebscan.pojo.Users
 import cn.mqh9007.ktwebscan.service.UsersService
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper
-import com.baomidou.mybatisplus.extension.kotlin.KtQueryWrapper
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl
 import jakarta.annotation.Resource
 import org.springframework.stereotype.Service
@@ -31,6 +30,12 @@ class UsersServiceImpl : ServiceImpl<UsersMapper, Users>(), UsersService {
 
         )
 //        return usersMapper.getUserByUserName(name)
+    }
+
+
+    override fun isUsernameExist(username: String): Boolean {
+        val user = usersMapper.findUserByUsername(username)
+        return user != null
     }
 
 

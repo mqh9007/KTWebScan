@@ -16,7 +16,7 @@ class Users : Serializable {
 
     var password: String? = null
 
-//  var state: Int? = null
+    var state: Int? = null
 
     companion object {
         @TableField(exist = false)

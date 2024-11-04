@@ -1,5 +1,6 @@
 package cn.mqh9007.ktwebscan.controller
 
+
 import cn.hutool.crypto.digest.DigestUtil
 import cn.mqh9007.ktwebscan.pojo.Users
 import cn.mqh9007.ktwebscan.service.UsersService
@@ -17,10 +18,7 @@ class UserController {
     @Resource
     lateinit var usersService: UsersService
 
-//    @PostMapping("/api/user/login/{username}")
-//    fun getUserByUserName(@PathVariable("username") username: String): Result<Users> {
-//        return Result.success(usersService.getUserByUserName(username))
-//    }
+
     @Resource
     lateinit var redisTemplate: RedisTemplate<String, Any>
 
@@ -29,7 +27,7 @@ class UserController {
         fun login(@RequestBody user: Users):ResultMsg {
             val users = usersService.login(user)    //调用用户service层 登陆验证
         val data = HashMap<String,Any>()    //创建一个map
-        user.password = DigestUtil.md5Hex(user.password)
+        user.password = DigestUtil.sha256Hex(user.password)
         if (users != null) {
             if (user.password == users.password){
                 val token = UUID.randomUUID().toString()
@@ -43,7 +41,9 @@ class UserController {
         }
         return ResultMsg(false,401,"用户不存在",data)
     }
-    @GetMapping("/user/info")
+
+    //获取用户信息
+    @GetMapping("user/info")
     fun getInfo(request: HttpServletRequest): ResultMsg {
         val token = request.getHeader("token")
         val data = redisTemplate.opsForValue().get(token)?:return ResultMsg(false,411,"token过期")
@@ -56,16 +56,22 @@ class UserController {
         return ResultMsg(true, 200,map)
     }
 
+    //退出登录
     @PostMapping("user/logout")
     fun logout():ResultMsg {
         return ResultMsg(true,200,null)
     }
 
-    @RequestMapping("/user/register")
-    fun register(@RequestBody user: Users) {
-//        println(UUID.randomUUID().toString().replace("-",""))
-//        user.password= DigestUtil.md5Hex(user.password)
+    //注册
+    @RequestMapping("user/register")
+    fun register(@RequestBody user: Users): ResultMsg {
+//        println(UUID.randomUUID().toString().replace("-","")) //加盐
+        if(usersService.isUsernameExist(user.username!!)){
+           return ResultMsg(false,500,"用户名已存在")
+        }
+        user.password = DigestUtil.sha256Hex(user.password)
         usersService.register(user)
+        return ResultMsg(true,200,"注册成功")
     }
 
 

@@ -7,23 +7,28 @@
     <resultMap id="BaseResultMap" type="cn.mqh9007.ktwebscan.pojo.Users">
             <result property="username" column="username" jdbcType="VARCHAR"/>
             <result property="password" column="password" jdbcType="VARCHAR"/>
+            <result property="state" column="state" jdbcType="INTEGER"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        username,passwd,state
+        username,password,state
     </sql>
     <select id="getUserByUserName" resultType="cn.mqh9007.ktwebscan.pojo.Users">
-        select username,password from users
+        select username,password from userinfo
         where username = #{name}
     </select>
 
     <select id="login" resultType="cn.mqh9007.ktwebscan.pojo.Users">
-        SELECT * FROM users WHERE username = #{username} AND password = #{password}
+        SELECT * FROM userinfo WHERE username = #{username} AND password = #{password}
     </select>
 
 
     <insert id="register">
-        insert into users(username,passwd)
+        insert into userinfo(username,password,state)
         values (#{username},#{password},1)
     </insert>
+
+    <select id="findUserByUsername" parameterType="string" resultType="Users">
+        select * from userinfo where username = #{username}
+    </select>
 </mapper>
