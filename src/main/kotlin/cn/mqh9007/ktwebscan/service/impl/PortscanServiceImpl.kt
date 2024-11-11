@@ -3,7 +3,7 @@ package cn.mqh9007.ktwebscan.service.impl
 import cn.mqh9007.ktwebscan.mapper.PortscanMapper
 import cn.mqh9007.ktwebscan.pojo.Portscan
 import cn.mqh9007.ktwebscan.service.PortscanService
-import cn.mqh9007.ktwebscan.utils.NmapUtil
+import cn.mqh9007.ktwebscan.util.NmapUtil
 import org.springframework.stereotype.Service
 
 @Service

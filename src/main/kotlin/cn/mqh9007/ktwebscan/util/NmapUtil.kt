@@ -1,4 +1,4 @@
-package cn.mqh9007.ktwebscan.utils
+package cn.mqh9007.ktwebscan.util
 
 import java.io.BufferedReader
 import java.io.InputStreamReader

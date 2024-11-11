@@ -7,7 +7,6 @@ import java.io.Serializable;
 
 /**
  * 全局统一返回对象
- *
  * @author Tom
  * @date 2020-12-14
  */
