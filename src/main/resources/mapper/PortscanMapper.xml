@@ -10,6 +10,7 @@
             <result property="port" column="port" jdbcType="VARCHAR"/>
             <result property="protocol" column="protocol" jdbcType="VARCHAR"/>
             <result property="state" column="state" jdbcType="VARCHAR"/>
+            <result property="service" column="service" jdbcType="VARCHAR"/>
             <result property="time" column="time" jdbcType="TIMESTAMP"/>
     </resultMap>
 
@@ -19,18 +20,18 @@
     </sql>
 
     <insert id="insertPortScanResults" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO portscan (ip, port, protocol, state, time)
+        INSERT INTO portscan (ip, port, protocol, state, service, time)
         VALUES
         <foreach collection="list" item="item" separator=",">
-            (#{item.ip}, #{item.port}, #{item.protocol}, #{item.state}, #{item.time})
+            (#{item.ip}, #{item.port}, #{item.protocol}, #{item.state}, #{item.service}, #{item.time})
         </foreach>
     </insert>
 
     <insert id="insertBatchSomeColumn" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO portscan (ip, port, protocol, state, time)
+        INSERT INTO portscan (ip, port, protocol, state, service, time)
         VALUES
         <foreach collection="list" item="item" separator=",">
-            (#{item.ip}, #{item.port}, #{item.protocol}, #{item.state}, #{item.time})
+            (#{item.ip}, #{item.port}, #{item.protocol}, #{item.state}, #{item.service}, #{item.time})
         </foreach>
     </insert>
 

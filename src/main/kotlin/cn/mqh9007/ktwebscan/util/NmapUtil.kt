@@ -36,6 +36,8 @@ object NmapUtil {
                             val port = portProtocol[0]
                             val protocol = portProtocol[1]
                             val state = parts[1]
+                            val service = if (parts.size > 2) parts[2] else "unknown" // 提取服务名，默认值为 "unknown"
+
 
                             portscanResults.add(
                                 Portscan().apply {
@@ -44,6 +46,7 @@ object NmapUtil {
                                     this.protocol = protocol
                                     this.state = state
                                     this.time = timestamp
+                                    this.service = service // 存储服务信息
                                 }
                             )
                         } catch (e: Exception) {

@@ -25,6 +25,8 @@ class Portscan : Serializable {
 
     var state: String? = null   //状态
 
+    var service: String? = null
+
     var time: LocalDateTime? = null //扫描时间
 
     companion object {
