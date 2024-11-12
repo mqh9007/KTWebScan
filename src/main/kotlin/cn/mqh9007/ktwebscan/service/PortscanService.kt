@@ -12,4 +12,8 @@ interface PortscanService {
 
     fun portscan(ip : String):List<String>
     fun saveBatch(entityList: List<Portscan>, batchSize: Int): Boolean
+    // 获取最近10条扫描记录
+    fun getRecentResults(): List<Portscan>
+    // 获取指定IP的所有扫描记录
+    fun getScanResults(cleanedIP: String): List<Portscan>
 }

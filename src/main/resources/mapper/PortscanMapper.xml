@@ -33,4 +33,17 @@
             (#{item.ip}, #{item.port}, #{item.protocol}, #{item.state}, #{item.time})
         </foreach>
     </insert>
+
+    <select id="selectRecent">
+        SELECT * FROM portscan
+        ORDER BY id DESC
+        LIMIT 10
+    </select>
+<!--    -->
+    <select id="selectByIp" resultType="cn.mqh9007.ktwebscan.pojo.Portscan">
+        SELECT * FROM portscan
+        WHERE ip = #{cleanedIP}
+        ORDER BY time DESC
+    </select>
+
 </mapper>

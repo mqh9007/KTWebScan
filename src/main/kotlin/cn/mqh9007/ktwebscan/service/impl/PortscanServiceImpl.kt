@@ -8,7 +8,8 @@ import org.springframework.stereotype.Service
 
 @Service
 class PortscanServiceImpl(
-    private val PortscanMapper: PortscanMapper
+    private val PortscanMapper: PortscanMapper,
+    private val portscanMapper: PortscanMapper
 ) : PortscanService {
 
     override fun portscan(ip: String): List<String> {
@@ -25,6 +26,15 @@ class PortscanServiceImpl(
     override fun saveBatch(entityList: List<Portscan>, batchSize: Int): Boolean {
         // 使用 MyBatis-Plus 的批量插入功能
         return PortscanMapper.insertBatchSomeColumn(entityList)
+    }
+
+    override fun getRecentResults(): List<Portscan> {
+        return portscanMapper.selectRecent()
+    }
+
+    // 获取指定IP的所有扫描结果
+    override fun getScanResults(cleanedIP: String): List<Portscan> {
+        return portscanMapper.selectByIp(cleanedIP)
     }
 }
 

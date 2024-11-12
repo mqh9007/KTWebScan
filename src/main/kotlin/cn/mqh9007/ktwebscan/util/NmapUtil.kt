@@ -29,23 +29,33 @@ object NmapUtil {
                 if (captureData && line!!.isNotBlank()) {
                     val parts = line!!.trim().split("\\s+".toRegex())
                     if (parts.size >= 3) {
-                        val portProtocol = parts[0].split("/")
-                        val port = portProtocol[0]  // 确保是 String 类型
-                        val protocol = portProtocol[1]
-                        val state = parts[1]
+                        try {
+                            val portProtocol = parts[0].split("/")
+                            if (portProtocol.size < 2) continue  // 确保包含端口和协议信息
 
-                        portscanResults.add(
-                            Portscan().apply {
-                                this.ip = ip
-                                this.port = port
-                                this.protocol = protocol
-                                this.state = state
-                                this.time = timestamp
-                            }
-                        )
+                            val port = portProtocol[0]
+                            val protocol = portProtocol[1]
+                            val state = parts[1]
+
+                            portscanResults.add(
+                                Portscan().apply {
+                                    this.ip = ip
+                                    this.port = port
+                                    this.protocol = protocol
+                                    this.state = state
+                                    this.time = timestamp
+                                }
+                            )
+                        } catch (e: Exception) {
+                            // 捕获解析异常并打印错误信息
+                            println("解析行数据失败: $line, 错误: ${e.message}")
+                        }
                     }
                 }
             }
+
+            // 等待进程完成
+            process.waitFor()
         } catch (e: Exception) {
             e.printStackTrace()
         }
