@@ -22,12 +22,13 @@ class PortscanController(
         return ResultMsg(true,200,"开始扫描")
     }
 
-    @GetMapping("/result")
-    fun getScanResults(@RequestParam(required = false) ip: String?): List<Portscan> {
+    @PostMapping("/result")
+    fun getScanResults(@RequestBody ip: String?): List<Portscan> {
         return if (ip.isNullOrBlank()) {
             portscanService.getRecentResults()
         } else {
-            portscanService.getScanResults(ip)
+            val cleanedIP = ip.trim('"')
+            portscanService.getScanResults(cleanedIP)
         }
     }
 }

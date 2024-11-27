@@ -14,10 +14,13 @@ class Nmap4jTest {
         nmap4j nmapScanner = new nmap4j();
 
         // 测试参数，这里假设你要扫描的主机是 192.168.1.1
-        String testHost = "127.0.0.1";
+
+        String testHost = "192.168.1.1/24";
+
+        String testOptions = "-sn";
 
         // 调用 getResult 方法执行扫描
-        nmapScanner.getResult(testHost);
+        nmapScanner.getResult(testHost,testOptions);
 
         // 这里可以添加更多的断言来检查扫描结果是否符合预期
         // 例如，检查输出是否包含特定的字符串

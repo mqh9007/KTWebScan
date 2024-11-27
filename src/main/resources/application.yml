@@ -2,13 +2,13 @@ spring:
   application:
     name: KTWebScan
   datasource:
-    url: jdbc:mysql://localhost:3306/webscansystem?useSSL=false&serverTimezone=UTC
+    url: jdbc:mysql://localhost:3306/webscansystem?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
     username: JWebScan
     password: JWebScan123.
     driver-class-name: com.mysql.cj.jdbc.Driver
   data:
     redis:
-      host: 192.168.3.164
+      host: localhost
       port: 6379
 server:
   port: 10086

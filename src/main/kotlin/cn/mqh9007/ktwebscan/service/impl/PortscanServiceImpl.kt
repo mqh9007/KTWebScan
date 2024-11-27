@@ -8,8 +8,8 @@ import org.springframework.stereotype.Service
 
 @Service
 class PortscanServiceImpl(
-    private val PortscanMapper: PortscanMapper,
-    private val portscanMapper: PortscanMapper
+    private val PortscanMapper: PortscanMapper
+
 ) : PortscanService {
 
     override fun portscan(ip: String): List<String> {
@@ -29,13 +29,14 @@ class PortscanServiceImpl(
     }
 
     override fun getRecentResults(): List<Portscan> {
-        return portscanMapper.selectRecent()
+        return PortscanMapper.selectRecent()
     }
 
     // 获取指定IP的所有扫描结果
     override fun getScanResults(cleanedIP: String): List<Portscan> {
-        return portscanMapper.selectByIp(cleanedIP)
+        return PortscanMapper.selectByIp(cleanedIP)
     }
+
 }
 
 
