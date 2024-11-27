@@ -1,58 +1,115 @@
-//package cn.mqh9007.ktwebscan.service.impl
-//
-//import cn.mqh9007.ktwebscan.pojo.nmap
-//import cn.mqh9007.ktwebscan.mapper.NmapMapper
-//import cn.mqh9007.ktwebscan.service.ScanService
-//import cn.mqh9007.ktwebscan.util.nmap4j
-//import org.springframework.beans.factory.annotation.Autowired
-//import org.springframework.stereotype.Service
-//import java.time.LocalDateTime
-//import javax.xml.parsers.DocumentBuilderFactory
-//
-//@Service
-//class NmapServiceImpl @Autowired constructor(
-//    private val nmapMapper: NmapMapper,
-//    private val nmapTool: nmap4j // 调用 nmap 的 Java 方法
-//) : ScanService {
-//
-//    override fun scanAndSave(ip: String, options: String): String {
-//        // 调用 nmap4j 的 Scan 方法执行扫描
-//        val xmlResult = nmapTool.Scan(ip, options)
-//
-//        // 解析结果并保存到数据库
-//        parseAndSave(xmlResult, ip)
-//
-//        return "扫描任务完成并保存结果"
-//    }
-//
-//    override fun parseAndSave(xmlResult: String, ip: String) {
-//        // 使用 DOM 解析 XML
-//        val factory = DocumentBuilderFactory.newInstance()
-//        val builder = factory.newDocumentBuilder()
-//        val xmlDoc = builder.parse(xmlResult.byteInputStream())
-//
-//        // 提取 <port> 节点
-//        val ports = xmlDoc.getElementsByTagName("port")
-//        for (i in 0 until ports.length) {
-//            val portNode = ports.item(i)
-//
-//            // 获取协议和端口号
-//            val protocol = portNode.attributes.getNamedItem("protocol").nodeValue
-//            val portNumber = portNode.attributes.getNamedItem("portid").nodeValue.toInt()
-//
-//            // 获取状态信息
-//            val stateNode = portNode.firstChild // 假设 <state> 是第一个子节点
-//            val state = stateNode.attributes.getNamedItem("state").nodeValue
-//
-//            // 保存到数据库
-//            val nmap = nmap(
-//                ip = ip,
-//                port = portNumber,
-//                protocol = protocol,
-//                state = state,
-//                time = LocalDateTime.now()
-//            )
-//            nmapMapper.insert(nmap)
-//        }
-//    }
-//}
+package cn.mqh9007.ktwebscan.service.impl
+
+import cn.mqh9007.ktwebscan.mapper.NmapMapper
+import cn.mqh9007.ktwebscan.pojo.Nmap
+import cn.mqh9007.ktwebscan.service.NmapService
+import cn.mqh9007.ktwebscan.util.nmap4j
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper
+import org.springframework.stereotype.Service
+import org.w3c.dom.Document
+import org.w3c.dom.Element
+import org.w3c.dom.NodeList
+import java.io.StringReader
+import java.time.LocalDateTime
+import javax.xml.parsers.DocumentBuilderFactory
+import org.xml.sax.InputSource
+
+@Service
+class NmapServiceImpl(
+    private val nmapMapper: NmapMapper,
+    private val nmap4j: nmap4j
+) : NmapService {
+
+    override fun scan(param: String, options: String): List<Nmap> {
+        // 调用nmap4j进行扫描，获取XML结果
+        val xmlResult = nmap4j.Scan(param, options)
+
+        // 解析XML结果
+        val nmapResults = parseNmapXml(xmlResult, param)
+
+        // 保存结果到数据库
+        nmapResults.forEach { nmapMapper.insert(it) }
+
+        return nmapResults
+    }
+
+    private fun parseNmapXml(xmlString: String, targetIp: String): List<Nmap> {
+        val results = mutableListOf<Nmap>()
+
+        try {
+            val dbFactory = DocumentBuilderFactory.newInstance()
+            val dBuilder = dbFactory.newDocumentBuilder()
+            val doc: Document = dBuilder.parse(InputSource(StringReader(xmlString)))
+            doc.documentElement.normalize()
+
+            // 获取所有host节点
+            val hostList = doc.getElementsByTagName("host")
+
+            for (i in 0 until hostList.length) {
+                val hostElement = hostList.item(i) as Element
+
+                // 获取IP地址
+                val address = hostElement.getElementsByTagName("address")
+                var ip = targetIp
+                var mac: String? = null
+
+                for (j in 0 until address.length) {
+                    val addr = address.item(j) as Element
+                    when (addr.getAttribute("addrtype")) {
+                        "ipv4" -> ip = addr.getAttribute("addr")
+                        "mac" -> mac = addr.getAttribute("addr")
+                    }
+                }
+
+                // 获取主机名
+                val hostnameList = hostElement.getElementsByTagName("hostname")
+                val hostname = if (hostnameList.length > 0) {
+                    (hostnameList.item(0) as Element).getAttribute("name")
+                } else null
+
+                // 获取端口信息
+                val ports = hostElement.getElementsByTagName("port")
+                for (j in 0 until ports.length) {
+                    val portElement = ports.item(j) as Element
+
+                    val portNumber = portElement.getAttribute("portid").toIntOrNull()
+                    val protocol = portElement.getAttribute("protocol")
+
+                    // 获取端口状态
+                    val stateElement = portElement.getElementsByTagName("state").item(0) as Element
+                    val state = stateElement.getAttribute("state")
+
+                    // 获取服务信息
+                    val serviceList = portElement.getElementsByTagName("service")
+                    val service = if (serviceList.length > 0) {
+                        (serviceList.item(0) as Element).getAttribute("name")
+                    } else null
+
+                    results.add(Nmap(
+                        ip = ip,
+                        hostname = hostname,
+                        mac = mac,
+                        port = portNumber,
+                        protocol = protocol,
+                        service = service,
+                        state = state,
+                        scanTime = LocalDateTime.now()
+                    ))
+                }
+            }
+        } catch (e: Exception) {
+            // 记录错误日志
+            e.printStackTrace()
+        }
+
+        return results
+    }
+
+    override fun getResultsByIp(ip: String): List<Nmap> {
+        return nmapMapper.selectByIp(ip)
+    }
+
+    override fun getRecentResults(): List<Nmap> {
+        return nmapMapper.selectRecentResults(10)
+    }
+} 

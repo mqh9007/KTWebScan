@@ -1,8 +1,11 @@
 package cn.mqh9007.ktwebscan.service
 
-import cn.mqh9007.ktwebscan.pojo.Portscan
+import cn.mqh9007.ktwebscan.pojo.Nmap
 
-interface ScanService {
-    fun scanAndSave(ip: String, options: String): String
-    fun parseAndSave(xmlResult: String, ip: String)
+interface NmapService {
+    fun scan(param: String, options: String): List<Nmap>
+    //根据IP地址查询结果
+    fun getResultsByIp(ip: String): List<Nmap>
+    //查询最近10次的结果
+    fun getRecentResults(): List<Nmap>
 }

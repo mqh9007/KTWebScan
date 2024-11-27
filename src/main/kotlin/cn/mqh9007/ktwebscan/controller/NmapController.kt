@@ -1,34 +1,44 @@
 package cn.mqh9007.ktwebscan.controller
 
-import cn.mqh9007.ktwebscan.pojo.Portscan
-import cn.mqh9007.ktwebscan.service.PortscanService
+import cn.mqh9007.ktwebscan.pojo.Nmap
+import cn.mqh9007.ktwebscan.service.NmapService
 import cn.mqh9007.ktwebscan.util.ResultMsg
-import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
+data class ScanRequest(
+    val ip: String,
+    val scanType: String // 可以根据这个选择不同的扫描选项
+)
+
 @RestController
-class PortscanController(
-    private val portscanService: PortscanService
+@RequestMapping("/nmap")
+class NmapController(
+    private val nmapService: NmapService
 ) {
 
     @PostMapping("/scan")
-    fun scanAndSavePorts(@RequestBody ip: String): ResultMsg {
-        // 调用服务层扫描并保存端口
-        val cleanedIP = ip.trim('"')
-        portscanService.portscan(cleanedIP)
-        return ResultMsg(true,200,"开始扫描")
+    fun scan(@RequestBody request: ScanRequest): ResultMsg {
+        // 根据scanType选择合适的扫描选项
+        val options = when(request.scanType) {
+            "port" -> "-p-"
+            "quick" -> "-F"
+            "service" -> "-sV"
+            else -> "-p-"
+        }
+
+        nmapService.scan(request.ip, options)
+        return ResultMsg(true, 200, "开始扫描")
     }
 
     @PostMapping("/result")
-    fun getScanResults(@RequestBody ip: String?): List<Portscan> {
-        return if (ip.isNullOrBlank()) {
-            portscanService.getRecentResults()
+    fun getResults(@RequestBody request: ScanRequest?): List<Nmap> {
+        return if (request?.ip.isNullOrBlank()) {
+            nmapService.getRecentResults()
         } else {
-            val cleanedIP = ip.trim('"')
-            portscanService.getScanResults(cleanedIP)
+            nmapService.getResultsByIp(request!!.ip)
         }
     }
 }
