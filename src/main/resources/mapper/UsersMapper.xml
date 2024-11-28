@@ -8,10 +8,11 @@
             <result property="username" column="username" jdbcType="VARCHAR"/>
             <result property="password" column="password" jdbcType="VARCHAR"/>
             <result property="state" column="state" jdbcType="INTEGER"/>
+            <result property="salt" column="salt" jdbcType="VARCHAR"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        username,password,state
+        username,password,state,salt
     </sql>
     <select id="getUserByUserName" resultType="cn.mqh9007.ktwebscan.pojo.Users">
         select username,password from userinfo
@@ -24,8 +25,8 @@
 
 
     <insert id="register">
-        insert into userinfo(username,password,state)
-        values (#{username},#{password},1)
+        insert into userinfo(username,password,state,salt)
+        values (#{username},#{password},1,#{salt})
     </insert>
 
     <select id="findUserByUsername" parameterType="string" resultType="Users">

@@ -12,11 +12,13 @@ import java.io.Serializable
 
 class Users : Serializable {
 
-    var username: String? = null
+    var username: String? = null    //用户名
 
-    var password: String? = null
+    var password: String? = null    //密码
 
-    var state: Int? = null
+    var state: Int? = null          //状态
+
+    var salt: String? = null       //盐
 
     companion object {
         @TableField(exist = false)
