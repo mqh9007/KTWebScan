@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import java.net.InetAddress
+import java.net.UnknownHostException
 
 data class ScanRequest(
     val ip: String,
@@ -18,9 +20,21 @@ data class ScanRequest(
 class NmapController(
     private val nmapService: NmapService
 ) {
-
+    //验证IP地址合法性
+    private fun isValidIP(ip: String): Boolean{
+        return try{
+            InetAddress.getByName(ip)
+            true
+        } catch (e: UnknownHostException){
+            false
+        }
+    }
     @PostMapping("/scan")
     fun scan(@RequestBody request: ScanRequest): ResultMsg {
+
+        if (isValidIP(request.ip)) {
+            return ResultMsg(false, 500, "输入的IP地址不合法")
+        }
         // 根据scanType选择合适的扫描选项
         val options = when(request.scanType) {
             "port" -> "-p-"
@@ -35,10 +49,12 @@ class NmapController(
 
     @PostMapping("/result")
     fun getResults(@RequestBody request: ScanRequest?): List<Nmap> {
-        return if (request?.ip.isNullOrBlank()) {
-            nmapService.getRecentResults()
-        } else {
-            nmapService.getResultsByIp(request!!.ip)
+        if(request!=null && request.ip.isNotEmpty()){
+            if(!isValidIP(request.ip)){
+                throw IllegalArgumentException("IP地址不合法，请输入正确的IP地址")
+            }
+            return nmapService.getResultsByIp(request.ip)
         }
+        return nmapService.getRecentResults()
     }
 }
